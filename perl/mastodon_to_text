@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use LWP::Simple;
+use JSON::Parse 'parse_json';
+
+#This script will pull Mastodon status for the selected account and then save them into text files.
+#Since the status is being saved as plain text, only statuses containing text are saved. 
+#The name of each text file will be the timestamp of the status. 
+
+
+#User Settings. 
+my $debug = 1;				#prints a few extra messages to stderr if enabled
+my $id = '123456789';			#this is the account ID of the account you want to fetch statuses of
+my $instance ='mastodon.hams.social';	#this is the instance
+my $limit = 5;				#this limits how many statuses will be returned (I think the API is hard limited at 20)
+my $username = "UR_NAME";		#this is the user name (only used to create a link in the resulting file)
+my $fileloc = '/PATH/TO/DEST';		#Where to write the files to
+
+
+#Requests the feed from instance, then parses JSON into a refence to an array of hashes. 
+warn "Attempting to GET from https://$instance/api/v1/accounts/$id/statuses\n" if $debug;
+my $feed = parse_json (get("https://$instance/api/v1/accounts/$id/statuses?limit=$limit")) or die "error getting feed"; 
+
+
+foreach my $entry (@$feed) {
+	my $file = $fileloc.$entry->{created_at}; 	#Use the timestamp to create a file name, then check if it exists. 
+	warn "Checking if $file exists\n";
+	if (! -e $file) {				#If the file exists, then we've already saved this status and should move on to the next. 
+		my $status = $entry->{content} =~s/<\/p>/\n/gr =~s/<.+?>//gr;	#strip out HTML tags. It's janky, but works well enough.
+		if ($status) {				#check to see if the status actually contains text.
+			open (GLOG, '>',$file) or die "failed to create file $entry->{created_at}\n"; warn "Opening $file\n" if $debug; 
+			print GLOG "$status\n\nFrom: https://$instance/\@$username/$entry->{id}"; warn "printing $status to $file\n" if $debug;
+			close GLOG; warn "Closing $file\n" if $debug;
+		} else {warn "Status at $entry->{created_at} contains no text - Skipping!\n" if $debug}	
+	}
+}
+
+
