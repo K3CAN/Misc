@@ -1,0 +1,13 @@
+#A timer for the simple systemd service writen by K3CAN
+
+[Unit]
+Description=A timer for a simple systemd service to sync LOTW, eqsl, and QRZ logbooks.
+Requires=cloudlogupdate.service
+
+[Timer]
+Unit=cloudlogupdate.service
+OnBootSec=1h
+OnUnitInactiveSec=6h
+
+[Install]
+WantedBy=timers.target

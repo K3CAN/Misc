@@ -1,0 +1,18 @@
+#A simple systemd service writen by K3CAN
+#Replace the placeholders with the correct paths for your install. 
+
+[Unit]
+Description=A simple systemd service to sync LOTW, eqsl, and QRZ logbooks.
+Wants=cloudlogupdate.timer
+
+[Service]
+WorkingDirectory=/PATH_TO/cloudlog   #this might not actually be needed.   
+Type=oneshot
+ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/qrz/download
+ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/qrz/upload
+ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/eqsl/sync
+ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/lotw/lotw_upload
+
+[Install]
+WantedBy=multi-user.target
+
