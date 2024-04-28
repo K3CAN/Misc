@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use strict;
+#Search And Destroy (SAD) v2 (25FEB11)
+
+my (@ps, $i, @proc, $proc);
+
+if (@ARGV) {@ps=`ps -A | grep @ARGV` or die "Process not found\n"} #If there is a argument, grep it (but end if grep returns an error code 256 or 512)  
+else {@ps=`ps -A`}                                                 #Otherwise, display everything
+
+foreach my $proc (@ps) {
+    $i++; 
+    ($proc[$i]{pid}, $proc[$i]{tty}, $proc[$i]{time}, $proc[$i]{cmd}) = split " ", $proc;
+    print "\[$i\] - $proc[$i]{cmd}\n";
+}
+chomp(my$selection=<STDIN>);unless ($selection=="") {
+kill 15, $proc[$selection]{pid} or print `sudo kill $proc[$selection]{pid}`;} #Attempt to kill process... Sudo if needed
