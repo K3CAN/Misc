@@ -12,7 +12,3 @@ ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/qrz/downloa
 ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/qrz/upload
 ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/eqsl/sync
 ExecStart=curl --silent https://www.UR_DOMAIN.com/cloudlog/index.php/lotw/lotw_upload
-
-[Install]
-WantedBy=multi-user.target
-
