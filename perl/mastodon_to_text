@@ -27,7 +27,7 @@ foreach my $entry (@$feed) {
 	my $file = $fileloc.$entry->{created_at}; 	#Use the timestamp to create a file name, then check if it exists. 
 	warn "Checking if $file exists\n";
 	if (! -e $file) {				#If the file exists, then we've already saved this status and should move on to the next. 
-		my $status = $entry->{content} =~s/<\/p>/\n/gr =~s/<.+?>//gr;	#strip out HTML tags. It's janky, but works well enough.
+		my $status = $entry->{content} =~s/<\/p>/\n/gr =~s/<.+?>//gr =~ s/&#39;/'/gr;	#strip out HTML tags. It's janky, but works well enough.
 		if ($status) {				#check to see if the status actually contains text.
 			open (GLOG, '>',$file) or die "failed to create file $entry->{created_at}\n"; warn "Opening $file\n" if $debug; 
 			print GLOG "$status\n\nFrom: https://$instance/\@$username/$entry->{id}"; warn "printing $status to $file\n" if $debug;
