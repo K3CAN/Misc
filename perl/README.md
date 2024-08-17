@@ -5,6 +5,11 @@ I have no idea.
 ------------------------------------------------------------
 Here's a quick rundown of the scripts here:
 
+* sync-cf-ips
+
+  This script will download the current IPv4 addresses used by cloudflare and create/update NGINX's "real_ip" configuration so that the source IPs are recorded correctly in the log. It assumes you're using NGINX's config.d, and creates or replaces a "real_ips.conf" file into that directory. 
+  This is obviously only useful if you're using Cloudflare's proxy service on your domain. 
+
 * sad
   
   Run with an argument of a process you want to kill, such as `sad chrome`. 
