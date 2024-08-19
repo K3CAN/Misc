@@ -58,8 +58,10 @@ When the state of the boolean helper was turned "on".
 
 That's one "helper" and two automations *per outlet*. 
 
-I thought that this seemed like a ridiculous amount of work and that there had to be an easier way.  I actually tried asking a generative AI for how they would accomplish this, and while their response didn't work at all (seemed to be based on an older version on HA), it _did_ show me something I missed: the `Command_Line` integration. While this _seems_ like it would essentially be an alias of `Shell Command`, it actually supports a native "switch" function, where you can automatically create a switch entity (no need for a helper) and assign it commands for both on and off without any additional automations or shenanigans.
+I thought that this seemed like a ridiculous amount of work and that there had to be an easier way.  I actually tried asking a generative AI for how they would accomplish this, and while their response didn't work at all (seemed to be based on an older version on HA), it _did_ show me something I missed: the `Command_Line` integration. 
+While this _seems_ like it would essentially be an alias of `Shell Command`, it actually supports a native "switch" function, where you can automatically create a switch entity (no need for a helper) and assign it commands for both on and off without any additional automations or shenanigans. _This is the configuraton that's included in this repo._
 **FINALLY**, I had an effective and logical way to trigger my commands from the HA interface.
+
 
 ## Conclusion
 While I suspect that this script and accompanying files are probably not useful to the majority of HA users, this project is one of my prouder homelab achievements, as it took me from unusable hardware, to hardware that I could control from my phone. Granted, the end result seems really simple on the surface, but I learned a bit more about serial devices, got to use a perl module I've never used before, and actually created something that fulfills a practical and functional purpose!
