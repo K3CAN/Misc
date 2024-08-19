@@ -40,7 +40,7 @@ To make matters _more_ confusing, if you SSH into the system, you're actually dr
 After finally starting to untangle the workings of HAOS; needlessly installing perl into the base OS and then needlessly installing cpan, gcc, and g++ in an attempt to build Device::SerialPort, not once, but twice _(only to later learn that it's available directly via "apk")_;  I finally got everything situated in the correct container and was able `docker exec` my script and watch the light on the RPC-2 turn on and off. 
 And just like that, I was onto the last step of the puzzle. 
 
-## Home Assistant - Attmept 2 - part B. 
+## Home Assistant - Attempt 2 - part B. 
 
 Now, I just needed to bring this shell command into the HA interface somehow. My first attempt was via `Shell_Command` which lets you call a CLI command from a script or automation. I set:
 ```
