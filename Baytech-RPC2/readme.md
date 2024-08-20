@@ -1,6 +1,6 @@
 # This is probably the project I'm the proudest of at the moment. 
 
-I was given a Baytech RPC-2 for free, and I wanted to put it to use in my homelab. The problem was that the RPC-2 was made back in Y2K and integrating it into my lab was going to be a little tricky. 
+I was given a Baytech RPC-2 (managed, rack-mounted PDU) for free, and I wanted to put it to use in my homelab. The problem was that the RPC-2 was made back in Y2K and integrating it into my lab was going to be a little tricky. 
 
 ## Hardware
 
@@ -14,15 +14,15 @@ I found picocom and set to work learning a little more about serial terminal com
 
 I discovered that if I had picocom open in another terminal, I could echo a command to the /dev/tty device and then see the RPC-2 respond to that command in picocom. To anyone more experienced with serial devices, this shouldn't be surprising, but this was my first time attempting to directly interact with something over a serial console and it gave me a solid idea of what I needed to do next. 
 
-I started by writing a perl script that would simply print a command to the /dev/tty device. Like the echo command, I could see the RPC-2 respond to the script in picocom. Since that seemed to work, I built out the script a little further to include passing the actions I wanted as command line arguments, like "rpcoutlets on 3" to turn on outlet 3. Everything seemed to be going well, until I closed picocom. Evidently, picocom was doing something to help facilitate that serial communication, because when it was closed, the script stopped functioning. 
+I started by writing a perl script that would simply print a command to the /dev/tty device. After figuring out what line terminator is needed (newline? carraige return?), like the echo command, I could see the RPC-2 respond to the script in picocom. Since that seemed to work, I built out the script a little further to include passing the actions I wanted as command line arguments, like "rpcoutlets on 3" to turn on outlet 3. Everything seemed to be going well, until I closed picocom. Evidently, picocom was doing _something_ to help facilitate that serial communication, because when it was closed, the script stopped functioning. 
 
 Apparently the computer needed to send some sort of signal to the device before it would listen for a command, and then that signal was removed when the connection was closed. As long as I had picocom connected, the RPC-2 would happily listen for and respond to commands, but as soon as picocom "hung up", the connection was closed and the RPC unit just ignored the serial port. I eventually concluded that I'd have to do something a little fancier than simply printing commands to a tty filehandle. 
-Enter: "Device::SerialPort." This is perl, after all, so of course there's a module I can use. Despite this, it still ended up taking a bit of trial and error, because I simply still didn't fully grasp the intricacies of serial communication. Regardless, I eventually was able to use the Device::SerialPort module to successfully open a connection to the RPC-2 and send the needed commands.  
+Enter: "Device::SerialPort." This _is_ perl, after all, so of course there's a module I can use. Despite this, it still ended up taking a bit of trial and error, because I still didn't fully grasp the intricacies of serial communication. Regardless, I eventually was able to use the Device::SerialPort module to successfully open a connection to the RPC-2 and send the needed commands.  
 Perfect, now just to integrate the command into Home Assistant…. 
 
 ## Home Assistant - Attempt 1
 
-Well, after a LOT of swearing and frustration, I actually gave up (for a while) on trying to integrate it into Home Assistant. The problem was mostly due to the way Home Assistant OS operates. Everything runs in containers, and it wasn't clear to me at the time what was actually running where. I could SSH into the HA instance and run the command without issue, but when I tried to make Home Assistant itself call the command, it reported that the command wasn't found. Weird… I'm sure that will come back later. 
+Well, after a LOT of swearing and frustration, I actually gave up (for a while) on trying to integrate it into Home Assistant. The problem was mostly due to the way Home Assistant OS operates. Everything runs in containers, and it wasn't clear to me at the time what was actually running where. I could SSH into the HA instance and run the command without issue, but when I tried to make Home Assistant itself call the command, it reported that the command wasn't found. Weird… Well, I'm stumped. Time to give up for a bit. 
 
 ## Good enough?
 
@@ -32,7 +32,7 @@ But good enough isn't good enough forever.
 
 ## Home Assistant - Attempt 2 
 
-I finally dove back into the mess more recently, stubbornly adamant that there must be some way I could bring it into HA. 
+I finally dove back into the mess more recently, stubbornly adamant that there _must_ be some way I could bring it into HA. 
 
 Digging further into the inner-workings of HA, I found that HAOS is essentially a super stripped down distro that just runs a handful of docker containers. If you access the system through the console, you're accessing the base OS, which is _not_ where HA actually runs it's commands; rather, HA actually runs commands within a docker container called "homeassistant". 
 To make matters _more_ confusing, if you SSH into the system, you're actually dropped into yet another, different container. So, if a command works fine when you're connected via console, that doesn't mean it will work over SSH or in HA. If a command works over SSH, it probably still won't work over a console connection or within HA. By the way, fun fact: both the SSH container and the HA container have perl, but the base OS doesn't, in case you were wondering.   
@@ -56,14 +56,28 @@ Then I created a "Helper" unit as a boolean called "rpc switch 1", followed by a
 When the state of the boolean helper was turned "on".
 …Then a *second* automation for when the switch was turned "off" 
 
-That's one "helper" and two automations *per outlet*. 
+That's one "helper" and two automations *per outlet*, or a full dozen automations for the single PDU. 
 
 I thought that this seemed like a ridiculous amount of work and that there had to be an easier way.  I actually tried asking a generative AI for how they would accomplish this, and while their response didn't work at all (seemed to be based on an older version on HA), it _did_ show me something I missed: the `Command_Line` integration. 
 
-While this _seems_ like it would essentially be an alias of `Shell Command`, it actually supports a native "switch" function, where you can automatically create a switch entity (no need for a helper) and assign it commands for both on and off without any additional automations or shenanigans. _This is the configuraton that's included in this repo._
+While this _seems_ like it would essentially be an alias of `Shell Command`, it actually supports a native "switch" function, where you can automatically create a switch entity (no need for a "helper") and assign it commands for both on and off without any additional automations or shenanigans. 
 
-**FINALLY**, I had an effective and logical way to trigger my commands from the HA interface.
+Here's how that looked:
+```
+command_line:
+    - switch:
+        name: RPC Outlet 1
+        command_on: '/usr/local/bin/rpcoutlets on 1'
+        command_off: '/usr/local/bin/rpcoutlets off 1'
+    - switch:
+        name: RPC Outlet 2
+        command_on: '/usr/local/bin/rpcoutlets on 2'
+        command_off: '/usr/local/bin/rpcoutlets off 2'
+```
 
+**FINALLY**, I had an effective and _sane_ way to trigger my commands from the HA interface.
+
+![My outlets in a Home Assistant "Glance" card](/Baytech-RPC2/ha-card.png)
 
 ## Conclusion
 While I suspect that this script and accompanying files are probably not useful to the majority of HA users, this project is one of my prouder homelab achievements, as it took me from unusable hardware, to hardware that I could control from my phone. Granted, the end result seems really simple on the surface, but I learned a bit more about serial devices, got to use a perl module I've never used before, and actually created something that fulfills a practical and functional purpose!
