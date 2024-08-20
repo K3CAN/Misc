@@ -1,0 +1,30 @@
+Welcome to Botz.	Version 1 beta  Writen by Adam
+This game is designed to be run with a window width of 80 char.
+
+Key:
+O = Robot | % = Robo-Remains | @ = Player | X = Loser (Dead player)
+
+The goal in the game to to destroy the robots. You can only destroy a robot by
+getting it to crash in to another robot. You will be instantly killed if a robot
+hits you OR if you tread on the remains of a destroyed robot.
+
+Use the num-pad (1,2,3,4,6,7,8,9) for movement,
+0 to stay in one spot,
+* for Bullet-time mode
++ for teleporter.
+/ for a Blast going along your Y axis
+- for a Blast going along your X axis
+. to stay in the same spot for 5 turns
+
+Pressing 'q' will terminate the game and 'r' will restart the curent level.
+The ; key will alow you to enter the following commands:
+ kill x (or all)	-Kills a robot. x = the ID of the robot to be killed.
+ changelevel x y	-Changes the level. x = level, y = round.
+ die		-Kills player.
+ moveto y x	-Moves player to Y X
+ addbots x	-Adds x number of bots and resets level.
+ control x	-Changes key capture mode. x = 0 or 1 (0 by default)
+ bind x y	-Binds x key to y function and saves key binds.
+ classic x	-x = 0 for normal mode, 1 for classic mode.
+
+Enter starting level. (max is 10):
