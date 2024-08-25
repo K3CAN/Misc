@@ -1,4 +1,4 @@
-# This is probably the project I'm the proudest of at the moment. 
+# WIP - rpcoulets
 
 I was given a Baytech RPC-2 (managed, rack-mounted PDU) for free, and I wanted to put it to use in my homelab. The problem was that the RPC-2 was made back in Y2K and integrating it into my lab was going to be a little tricky. 
 
@@ -79,5 +79,7 @@ command_line:
 
 ![My outlets in a Home Assistant "Glance" card](/Baytech-RPC2/ha-card.png)
 
-## Conclusion
-While I suspect that this script and accompanying files are probably not useful to the majority of HA users, this project is one of my prouder homelab achievements, as it took me from unusable hardware, to hardware that I could control from my phone. Granted, the end result seems really simple on the surface, but I learned a bit more about serial devices, got to use a perl module I've never used before, and actually created something that fulfills a practical and functional purpose!
+## Next steps
+Now that it's all working, the next step is deciding how to make this a persistent part of my HA instance. As mentioned, HA itself runs within a Docker container, so it's normal process of pulling a new image for each update means that my changes will get erased every time it updates. 
+
+Either I build this out into a full-fledge integration... Or I just automate the process of installing perl and loading my script after each update. 
